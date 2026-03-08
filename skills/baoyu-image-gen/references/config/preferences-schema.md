@@ -23,6 +23,9 @@ default_model:
   google: null              # e.g., "gemini-3-pro-image-preview"
   openai: null              # e.g., "gpt-image-1.5"
   dashscope: null           # e.g., "z-image-turbo"
+  siliconflow: null         # e.g., "Qwen/Qwen-Image"
+  zhipu: null               # e.g., "glm-image"
+  pollinations: null        # e.g., "flux"
 ---
 ```
 
@@ -38,6 +41,9 @@ default_model:
 | `default_model.google` | string\|null | null | Google default model |
 | `default_model.openai` | string\|null | null | OpenAI default model |
 | `default_model.dashscope` | string\|null | null | DashScope default model |
+| `default_model.siliconflow` | string\|null | null | SiliconFlow default model |
+| `default_model.zhipu` | string\|null | null | Zhipu default model |
+| `default_model.pollinations` | string\|null | null | Pollinations default model |
 
 ## Examples
 
@@ -62,5 +68,8 @@ default_model:
   google: "gemini-3-pro-image-preview"
   openai: "gpt-image-1.5"
   dashscope: "z-image-turbo"
+  siliconflow: "Qwen/Qwen-Image"
+  zhipu: "glm-image"
+  pollinations: "flux"
 ---
 ```

@@ -1,4 +1,4 @@
-export type Provider = "google" | "openai" | "dashscope";
+export type Provider = "google" | "openai" | "dashscope" | "siliconflow" | "zhipu" | "pollinations";
 export type Quality = "normal" | "2k";
 
 export type CliArgs = {
@@ -27,5 +27,8 @@ export type ExtendConfig = {
     google: string | null;
     openai: string | null;
     dashscope: string | null;
+    siliconflow: string | null;
+    zhipu: string | null;
+    pollinations: string | null;
   };
 };

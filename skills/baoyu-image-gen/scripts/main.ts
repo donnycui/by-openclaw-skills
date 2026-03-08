@@ -14,7 +14,7 @@ Options:
   -p, --prompt <text>       Prompt text
   --promptfiles <files...>  Read prompt from files (concatenated)
   --image <path>            Output image path (required)
-  --provider google|openai|dashscope  Force provider (auto-detect by default)
+  --provider google|openai|dashscope|siliconflow|zhipu|pollinations  Force provider (auto-detect by default)
   -m, --model <id>          Model ID
   --ar <ratio>              Aspect ratio (e.g., 16:9, 1:1, 4:3)
   --size <WxH>              Size (e.g., 1024x1024)
@@ -30,12 +30,19 @@ Environment variables:
   GOOGLE_API_KEY            Google API key
   GEMINI_API_KEY            Gemini API key (alias for GOOGLE_API_KEY)
   DASHSCOPE_API_KEY         DashScope API key (阿里云通义万象)
+  SILICONFLOW_API_KEY       SiliconFlow API key
+  ZHIPU_API_KEY             Zhipu AI API key (智谱 AI)
+  POLLINATIONS_API_KEY      Pollinations API key
   OPENAI_IMAGE_MODEL        Default OpenAI model (gpt-image-1.5)
   GOOGLE_IMAGE_MODEL        Default Google model (gemini-3-pro-image-preview)
   DASHSCOPE_IMAGE_MODEL     Default DashScope model (z-image-turbo)
+  SILICONFLOW_IMAGE_MODEL   Default SiliconFlow model (Qwen/Qwen-Image)
+  ZHIPU_IMAGE_MODEL         Default Zhipu model (glm-image)
+  POLLINATIONS_IMAGE_MODEL  Default Pollinations model (flux)
   OPENAI_BASE_URL           Custom OpenAI endpoint
   GOOGLE_BASE_URL           Custom Google endpoint
   DASHSCOPE_BASE_URL        Custom DashScope endpoint
+  ZHIPU_BASE_URL            Custom Zhipu endpoint
 
 Env file load order: CLI args > EXTEND.md > process.env > <cwd>/.baoyu-skills/.env > ~/.baoyu-skills/.env`);
 }
@@ -250,9 +257,9 @@ function parseSimpleYaml(yaml: string): Partial<ExtendConfig> {
       } else if (key === "default_image_size") {
         config.default_image_size = value === "null" ? null : (value as "1K" | "2K" | "4K");
       } else if (key === "default_model") {
-        config.default_model = { google: null, openai: null, dashscope: null };
+        config.default_model = { google: null, openai: null, dashscope: null, siliconflow: null, zhipu: null, pollinations: null };
         currentKey = "default_model";
-      } else if (currentKey === "default_model" && (key === "google" || key === "openai" || key === "dashscope")) {
+      } else if (currentKey === "default_model" && (key === "google" || key === "openai" || key === "dashscope" || key === "siliconflow" || key === "zhipu" || key === "pollinations")) {
         const cleaned = value.replace(/['"]/g, "");
         config.default_model![key] = cleaned === "null" ? null : cleaned;
       }
@@ -334,6 +341,9 @@ function detectProvider(args: CliArgs): Provider {
   const hasGoogle = !!(process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY);
   const hasOpenai = !!process.env.OPENAI_API_KEY;
   const hasDashscope = !!process.env.DASHSCOPE_API_KEY;
+  const hasSiliconflow = !!process.env.SILICONFLOW_API_KEY;
+  const hasZhipu = !!process.env.ZHIPU_API_KEY;
+  const hasPollinations = !!process.env.POLLINATIONS_API_KEY;
 
   if (args.referenceImages.length > 0) {
     if (hasGoogle) return "google";
@@ -343,13 +353,20 @@ function detectProvider(args: CliArgs): Provider {
     );
   }
 
-  const available = [hasGoogle && "google", hasOpenai && "openai", hasDashscope && "dashscope"].filter(Boolean) as Provider[];
+  const available = [
+    hasGoogle && "google",
+    hasOpenai && "openai",
+    hasDashscope && "dashscope",
+    hasSiliconflow && "siliconflow",
+    hasZhipu && "zhipu",
+    hasPollinations && "pollinations",
+  ].filter(Boolean) as Provider[];
 
   if (available.length === 1) return available[0]!;
   if (available.length > 1) return available[0]!;
 
   throw new Error(
-    "No API key found. Set GOOGLE_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY, or DASHSCOPE_API_KEY.\n" +
+    "No API key found. Set GOOGLE_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY, DASHSCOPE_API_KEY, SILICONFLOW_API_KEY, ZHIPU_API_KEY, or POLLINATIONS_API_KEY.\n" +
       "Create ~/.baoyu-skills/.env or <cwd>/.baoyu-skills/.env with your keys."
   );
 }
@@ -388,6 +405,15 @@ async function loadProviderModule(provider: Provider): Promise<ProviderModule> {
   }
   if (provider === "dashscope") {
     return (await import("./providers/dashscope")) as ProviderModule;
+  }
+  if (provider === "siliconflow") {
+    return (await import("./providers/siliconflow")) as ProviderModule;
+  }
+  if (provider === "zhipu") {
+    return (await import("./providers/zhipu")) as ProviderModule;
+  }
+  if (provider === "pollinations") {
+    return (await import("./providers/pollinations")) as ProviderModule;
   }
   return (await import("./providers/openai")) as ProviderModule;
 }

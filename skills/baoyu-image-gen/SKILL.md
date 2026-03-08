@@ -1,11 +1,20 @@
 ---
 name: baoyu-image-gen
-description: AI image generation with OpenAI, Google and DashScope APIs. Supports text-to-image, reference images, aspect ratios. Sequential by default; parallel generation available on request. Use when user asks to generate, create, or draw images.
+description: AI image generation with multiple providers (Google, OpenAI, DashScope, SiliconFlow, Zhipu, Pollinations). Supports text-to-image, reference images, aspect ratios. Sequential by default; parallel generation available on request. Use when user asks to generate, create, or draw images.
 ---
 
 # Image Generation (AI SDK)
 
-Official API-based image generation. Supports OpenAI, Google and DashScope (阿里通义万象) providers.
+Official API-based image generation. Supports 6 providers:
+
+| Provider | Default Model | Best For |
+|----------|---------------|----------|
+| **Google** | gemini-3-pro-image-preview | Reference images, multimodal |
+| **OpenAI** | gpt-image-1.5 | GPT ecosystem |
+| **DashScope** | z-image-turbo | 阿里通义万象 |
+| **SiliconFlow** | Qwen/Qwen-Image | 中文内容，高质量 |
+| **Zhipu** | glm-image | 中文内容，智谱 AI |
+| **Pollinations** | flux | 快速生成，英文内容 |
 
 ## Script Directory
 
@@ -71,6 +80,15 @@ npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "A cat" --image out.png --provi
 
 # DashScope (阿里通义万象)
 npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "一只可爱的猫" --image out.png --provider dashscope
+
+# SiliconFlow (硅基流动)
+npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "一只可爱的猫" --image out.png --provider siliconflow
+
+# Zhipu (智谱 AI)
+npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "一只可爱的猫" --image out.png --provider zhipu
+
+# Pollinations
+npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "A cute cat" --image out.png --provider pollinations
 ```
 
 ## Options
@@ -80,7 +98,7 @@ npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "一只可爱的猫" --image ou
 | `--prompt <text>`, `-p` | Prompt text |
 | `--promptfiles <files...>` | Read prompt from files (concatenated) |
 | `--image <path>` | Output image path (required) |
-| `--provider google\|openai\|dashscope` | Force provider (default: google) |
+| `--provider google\|openai\|dashscope\|siliconflow\|zhipu\|pollinations` | Force provider (default: auto-detect by API key) |
 | `--model <id>`, `-m` | Model ID (`--ref` with OpenAI requires GPT Image model, e.g. `gpt-image-1.5`) |
 | `--ar <ratio>` | Aspect ratio (e.g., `16:9`, `1:1`, `4:3`) |
 | `--size <WxH>` | Size (e.g., `1024x1024`) |
@@ -96,13 +114,21 @@ npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "一只可爱的猫" --image ou
 |----------|-------------|
 | `OPENAI_API_KEY` | OpenAI API key |
 | `GOOGLE_API_KEY` | Google API key |
+| `GEMINI_API_KEY` | Gemini API key (alias for GOOGLE_API_KEY) |
 | `DASHSCOPE_API_KEY` | DashScope API key (阿里云) |
+| `SILICONFLOW_API_KEY` | SiliconFlow API key |
+| `ZHIPU_API_KEY` | Zhipu AI API key (智谱 AI) |
+| `POLLINATIONS_API_KEY` | Pollinations API key |
 | `OPENAI_IMAGE_MODEL` | OpenAI model override |
 | `GOOGLE_IMAGE_MODEL` | Google model override |
 | `DASHSCOPE_IMAGE_MODEL` | DashScope model override (default: z-image-turbo) |
+| `SILICONFLOW_IMAGE_MODEL` | SiliconFlow model override (default: Qwen/Qwen-Image) |
+| `ZHIPU_IMAGE_MODEL` | Zhipu model override (default: glm-image) |
+| `POLLINATIONS_IMAGE_MODEL` | Pollinations model override (default: flux) |
 | `OPENAI_BASE_URL` | Custom OpenAI endpoint |
 | `GOOGLE_BASE_URL` | Custom Google endpoint |
 | `DASHSCOPE_BASE_URL` | Custom DashScope endpoint |
+| `ZHIPU_BASE_URL` | Custom Zhipu endpoint |
 
 **Load Priority**: CLI args > EXTEND.md > env vars > `<cwd>/.baoyu-skills/.env` > `~/.baoyu-skills/.env`
 
@@ -111,7 +137,13 @@ npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "一只可爱的猫" --image ou
 1. `--ref` provided + no `--provider` → auto-select Google first, then OpenAI
 2. `--provider` specified → use it (if `--ref`, must be `google` or `openai`)
 3. Only one API key available → use that provider
-4. Multiple available → default to Google
+4. Multiple available → use first available in priority order: Google > OpenAI > DashScope > SiliconFlow > Zhipu > Pollinations
+
+**Smart Provider Selection** (recommended):
+- **中文内容** → Use `--provider zhipu` or `--provider siliconflow`
+- **英文内容** → Use `--provider pollinations` (flux) for fast generation
+- **Reference images** → Use `--provider google` (Gemini multimodal)
+- **High quality Chinese** → Use `--provider siliconflow` (Qwen-Image)
 
 ## Quality Presets
 
