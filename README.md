@@ -564,7 +564,18 @@ AI-powered generation backends.
 
 #### baoyu-image-gen
 
-AI SDK-based image generation using official OpenAI, Google and DashScope (Aliyun Tongyi Wanxiang) APIs. Supports text-to-image, reference images, aspect ratios, and quality presets.
+AI SDK-based image generation with **6 providers**: Google, OpenAI, DashScope, SiliconFlow, Zhipu, and Pollinations. Supports text-to-image, reference images, aspect ratios, and quality presets.
+
+**Provider Comparison**:
+
+| Provider | Default Model | Best For | Speed |
+|----------|---------------|----------|-------|
+| **Google** | gemini-3-pro-image-preview | Reference images, multimodal | Medium |
+| **OpenAI** | gpt-image-1.5 | GPT ecosystem | Medium |
+| **DashScope** | z-image-turbo | 阿里通义万象 | Fast |
+| **SiliconFlow** | Qwen/Qwen-Image | 中文内容，高质量 | Fast |
+| **Zhipu** | glm-image | 中文内容，智谱 AI | Medium |
+| **Pollinations** | flux | 快速生成，英文内容 | Fastest |
 
 ```bash
 # Basic generation (auto-detect provider)
@@ -579,8 +590,17 @@ AI SDK-based image generation using official OpenAI, Google and DashScope (Aliyu
 # Specific provider
 /baoyu-image-gen --prompt "A cat" --image cat.png --provider openai
 
-# DashScope (Aliyun Tongyi Wanxiang)
+# DashScope (阿里通义万象)
 /baoyu-image-gen --prompt "一只可爱的猫" --image cat.png --provider dashscope
+
+# SiliconFlow (硅基流动，中文推荐)
+/baoyu-image-gen --prompt "一只可爱的猫" --image cat.png --provider siliconflow
+
+# Zhipu (智谱 AI，中文推荐)
+/baoyu-image-gen --prompt "一只可爱的猫" --image cat.png --provider zhipu
+
+# Pollinations (flux, 快速)
+/baoyu-image-gen --prompt "A cute cat" --image cat.png --provider pollinations
 
 # With reference images (Google multimodal only)
 /baoyu-image-gen --prompt "Make it blue" --image out.png --ref source.png
@@ -592,7 +612,7 @@ AI SDK-based image generation using official OpenAI, Google and DashScope (Aliyu
 | `--prompt`, `-p` | Prompt text |
 | `--promptfiles` | Read prompt from files (concatenated) |
 | `--image` | Output image path (required) |
-| `--provider` | `google`, `openai` or `dashscope` (default: google) |
+| `--provider` | `google`, `openai`, `dashscope`, `siliconflow`, `zhipu`, `pollinations` (default: auto-detect) |
 | `--model`, `-m` | Model ID |
 | `--ar` | Aspect ratio (e.g., `16:9`, `1:1`, `4:3`) |
 | `--size` | Size (e.g., `1024x1024`) |
@@ -605,17 +625,30 @@ AI SDK-based image generation using official OpenAI, Google and DashScope (Aliyu
 | `OPENAI_API_KEY` | OpenAI API key | - |
 | `GOOGLE_API_KEY` | Google API key | - |
 | `DASHSCOPE_API_KEY` | DashScope API key (Aliyun) | - |
+| `SILICONFLOW_API_KEY` | SiliconFlow API key | - |
+| `ZHIPU_API_KEY` | Zhipu AI API key (智谱 AI) | - |
+| `POLLINATIONS_API_KEY` | Pollinations API key | - |
 | `OPENAI_IMAGE_MODEL` | OpenAI model | `gpt-image-1.5` |
 | `GOOGLE_IMAGE_MODEL` | Google model | `gemini-3-pro-image-preview` |
 | `DASHSCOPE_IMAGE_MODEL` | DashScope model | `z-image-turbo` |
+| `SILICONFLOW_IMAGE_MODEL` | SiliconFlow model | `Qwen/Qwen-Image` |
+| `ZHIPU_IMAGE_MODEL` | Zhipu model | `glm-image` |
+| `POLLINATIONS_IMAGE_MODEL` | Pollinations model | `flux` |
 | `OPENAI_BASE_URL` | Custom OpenAI endpoint | - |
 | `GOOGLE_BASE_URL` | Custom Google endpoint | - |
 | `DASHSCOPE_BASE_URL` | Custom DashScope endpoint | - |
+| `ZHIPU_BASE_URL` | Custom Zhipu endpoint | - |
 
 **Provider Auto-Selection**:
 1. If `--provider` specified → use it
 2. If only one API key available → use that provider
-3. If multiple available → default to Google
+3. If multiple available → use first available in priority order
+
+**Smart Provider Selection** (recommended):
+- **中文提示词** → Use `--provider zhipu` or `--provider siliconflow`
+- **英文提示词** → Use `--provider pollinations` (flux is fast)
+- **Reference images** → Use `--provider google` (Gemini multimodal)
+- **High quality Chinese** → Use `--provider siliconflow` (Qwen-Image)
 
 #### baoyu-danger-gemini-web
 
