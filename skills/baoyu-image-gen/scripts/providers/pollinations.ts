@@ -45,15 +45,15 @@ export async function generateImage(
 
   const size = getSizeFromAspectRatio(args.aspectRatio, args.quality);
   
-  // Build Pollinations URL
-  const baseUrl = "https://image.pollinations.ai/prompt";
+  // Build Pollinations URL (using gen.pollinations.ai which is more reliable)
+  const baseUrl = "https://gen.pollinations.ai/image";
   const encodedPrompt = encodeURIComponent(prompt);
   const params = new URLSearchParams({
     model,
     width: size.width.toString(),
     height: size.height.toString(),
     seed: (args.n || 1).toString(),
-   nologo: "true",
+    nologo: "true",
   });
 
   const url = `${baseUrl}/${encodedPrompt}?${params.toString()}`;
