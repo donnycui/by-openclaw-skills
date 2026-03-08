@@ -330,6 +330,14 @@ function normalizeOutputImagePath(p: string): string {
   return `${full}.png`;
 }
 
+/**
+ * Check if text contains Chinese characters
+ */
+function containsChinese(text: string | null): boolean {
+  if (!text) return false;
+  return /[\u4e00-\u9fff]/.test(text);
+}
+
 function detectProvider(args: CliArgs): Provider {
   if (args.referenceImages.length > 0 && args.provider && args.provider !== "google" && args.provider !== "openai") {
     throw new Error(
@@ -354,6 +362,23 @@ function detectProvider(args: CliArgs): Provider {
     );
   }
 
+  // Check if prompt contains Chinese
+  const isChinese = containsChinese(args.prompt);
+
+  // Smart provider selection based on language
+  if (isChinese) {
+    // Chinese prompts: prefer SiliconFlow or Zhipu
+    if (hasSiliconflow) return "siliconflow";
+    if (hasZhipu) return "zhipu";
+    if (hasDashscope) return "dashscope";
+  } else {
+    // English/non-Chinese prompts: prefer Pollinations (fast)
+    if (hasPollinations) return "pollinations";
+    if (hasGoogle) return "google";
+    if (hasOpenai) return "openai";
+  }
+
+  // Fallback to first available
   const available = [
     hasGoogle && "google",
     hasOpenai && "openai",
