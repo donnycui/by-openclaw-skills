@@ -59,6 +59,7 @@ export async function generateImage(
   }
 
   const size = args.size || getSizeFromAspectRatio(args.aspectRatio, args.quality);
+  // Fixed: Correct API path without duplicate /v4
   const url = `${getBaseUrl()}/api/paas/v4/images/generations`;
 
   const body = {
