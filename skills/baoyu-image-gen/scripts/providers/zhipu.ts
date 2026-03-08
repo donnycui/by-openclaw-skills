@@ -59,8 +59,8 @@ export async function generateImage(
   }
 
   const size = args.size || getSizeFromAspectRatio(args.aspectRatio, args.quality);
-  // Try alternative API path
-  const url = `${getBaseUrl()}/v4/images/generations`;
+  // Use path without /v4 prefix (base URL might already include it)
+  const url = `${getBaseUrl()}/images/generations`;
 
   const body = {
     model,
