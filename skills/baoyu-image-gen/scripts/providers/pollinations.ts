@@ -56,9 +56,14 @@ export async function generateImage(
     nologo: "true",
   });
 
+  const apiKey = getApiKey();
+  if (apiKey) {
+    params.append("key", apiKey);
+  }
+
   const url = `${baseUrl}/${encodedPrompt}?${params.toString()}`;
 
-  console.log(`Generating image with Pollinations (${model})...`, { size, model });
+  console.log(`Generating image with Pollinations (${model})...`, { size, model, hasApiKey: !!apiKey });
 
   const res = await fetch(url);
   if (!res.ok) {
