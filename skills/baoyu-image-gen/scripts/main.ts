@@ -115,7 +115,8 @@ function parseArgs(argv: string[]): CliArgs {
 
     if (a === "--provider") {
       const v = argv[++i];
-      if (v !== "google" && v !== "openai" && v !== "dashscope") throw new Error(`Invalid provider: ${v}`);
+      const validProviders = ["google", "openai", "dashscope", "siliconflow", "zhipu", "pollinations"];
+      if (!validProviders.includes(v)) throw new Error(`Invalid provider: ${v}. Valid options: ${validProviders.join(", ")}`);
       out.provider = v;
       continue;
     }
